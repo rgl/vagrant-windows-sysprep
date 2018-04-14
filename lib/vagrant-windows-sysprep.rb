@@ -4,8 +4,8 @@ rescue LoadError
   raise "The Vagrant Windows Sysprep plugin must be run within Vagrant."
 end
 
-if Vagrant::VERSION < "1.9.0"
-  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 1.9+"
+if Vagrant::VERSION < "2.0.3"
+  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 2.0.3+"
 end
 
 module VagrantPlugins
@@ -23,12 +23,12 @@ module VagrantPlugins
           def configure(root_config)
           end
 
-          # see https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/machine.rb
-          # see https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/machine_state.rb
-          # see https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/ui.rb
-          # see https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/provisioner.rb
-          # see https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/communicator.rb
-          # see https://github.com/mitchellh/vagrant/blob/master/plugins/provisioners/shell/provisioner.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/machine.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/machine_state.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/ui.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/plugin/v2/provisioner.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/plugin/v2/communicator.rb
+          # see https://github.com/hashicorp/vagrant/blob/master/plugins/provisioners/shell/provisioner.rb
           def provision
             ps = 'PowerShell -ExecutionPolicy Bypass -OutputFormat Text'
 
