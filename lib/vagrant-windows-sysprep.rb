@@ -4,8 +4,8 @@ rescue LoadError
   raise "The Vagrant Windows Sysprep plugin must be run within Vagrant."
 end
 
-if Vagrant::VERSION < "2.0.3"
-  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 2.0.3+"
+if Vagrant::VERSION < "2.1.2"
+  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 2.1.2+"
 end
 
 module VagrantPlugins
@@ -54,7 +54,11 @@ module VagrantPlugins
             rescue
               # ignored. this should be due to the shutdown that sysprep does.
             end
-            until @machine.state.id == :poweroff
+
+            # wait for the machine to be shutdown.
+            # NB :poweroff is used by the VirtualBox provider.
+            # NB :shutoff  is used by the libvirt provider.
+            until [:poweroff, :shutoff].include? @machine.state.id
               sleep 10
             end
 

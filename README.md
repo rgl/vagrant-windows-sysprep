@@ -5,7 +5,7 @@
 
 This is a Vagrant plugin to sysprep Windows.
 
-**NB** This was only tested with Vagrant 2.0.3 and Windows Server 2016.
+**NB** This was only tested with Vagrant 2.1.2 and Windows Server 2016.
 
 # Installation
 
