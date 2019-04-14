@@ -33,20 +33,27 @@ module VagrantPlugins
             ps = 'PowerShell -ExecutionPolicy Bypass -OutputFormat Text'
 
             original_machine_sid = ''
-            show_sid_remote_path = "C:/Windows/Temp/vagrant-windows-sysprep-show-sid.ps1"
+            original_machine_computer_name = ''
+            info_remote_path = "C:/Windows/Temp/vagrant-windows-sysprep-info.ps1"
             @machine.communicate.upload(
-              File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "show-sid.ps1"),
-              show_sid_remote_path)
-            show_sid_command = "#{ps} -File #{show_sid_remote_path}"
-            @machine.communicate.sudo(show_sid_command, {elevated: true, interactive: false}) do |type, data|
+              File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "info.ps1"),
+              info_remote_path)
+            info_command = "#{ps} -File #{info_remote_path}"
+            @machine.communicate.sudo(info_command, {elevated: true, interactive: false}) do |type, data|
               original_machine_sid = $1.strip if data =~ /This Machine SID is (.+)/
+              original_machine_computer_name = $1.strip if data =~ /This Machine ComputerName is (.+)/
             end
 
-            autounattend_remote_path = "C:/Windows/Temp/vagrant-windows-sysprep-autounattend.xml"
+            unattend_remote_path = "C:/Windows/Temp/vagrant-windows-sysprep-unattend.xml"
             @machine.communicate.upload(
-              File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "autounattend.xml"),
-              autounattend_remote_path)
-            sysprep_command = "#{ps} -Command 'Start-Process -Wait C:/Windows/System32/Sysprep/sysprep /generalize,/oobe,/quiet,/shutdown,/unattend:#{autounattend_remote_path}'"
+              File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "unattend.xml"),
+              unattend_remote_path)
+
+            sysprep_remote_path = "C:/Windows/Temp/vagrant-windows-sysprep.ps1"
+            @machine.communicate.upload(
+              File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "sysprep.ps1"),
+              sysprep_remote_path)
+            sysprep_command = "#{ps} -File #{sysprep_remote_path}"
             begin
               @machine.communicate.sudo(sysprep_command, {elevated: true, interactive: false}) do |type, data|
                 handle_comm(type, data)
@@ -67,9 +74,23 @@ module VagrantPlugins
             @machine.action(:up, options)
 
             machine_sid = ''
-            @machine.communicate.sudo(show_sid_command, {elevated: true, interactive: false}) do |type, data|
+            machine_computer_name = ''
+            @machine.communicate.sudo(info_command, {elevated: true, interactive: false}) do |type, data|
               machine_sid = $1.strip if data =~ /This Machine SID is (.+)/
+              machine_computer_name = $1.strip if data =~ /This Machine ComputerName is (.+)/
             end
+
+            # NB there's a bug somewhere in windows sysprep machinery that prevents it from setting the
+            #    ComputerName when the name doesn't really change (like when you use config.vm.hostname),
+            #    it will instead set the ComputerName to something like WIN-0F47SUATAF5.
+            #    this workaround will compensate for that by renaming the computer.
+            # NB sysprep works in Windows 2016 14393.2906.
+            # NB sysprep fails in Windows 2019 17763.437.
+            if machine_computer_name != original_machine_computer_name
+              @machine.ui.info "Sysprep did not correctly set ComputerName... renaming it from #{machine_computer_name} to #{original_machine_computer_name}..."
+              @machine.guest.capability(:change_host_name, original_machine_computer_name)
+            end
+
             @machine.ui.success "The Machine SID was changed from #{original_machine_sid} to #{machine_sid}"
           end
 

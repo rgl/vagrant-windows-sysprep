@@ -21,4 +21,5 @@ function Get-MachineSID {
     }
 }
 
-echo "This Machine SID is $(Get-MachineSID)"
+Write-Output "This Machine SID is $(Get-MachineSID)"
+Write-Output "This Machine ComputerName is $env:COMPUTERNAME"
