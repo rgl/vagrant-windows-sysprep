@@ -28,7 +28,7 @@ GIT
 PATH
   remote: .
   specs:
-    vagrant-windows-sysprep (0.0.5)
+    vagrant-windows-sysprep (0.0.6)
 
 GEM
   remote: https://rubygems.org/

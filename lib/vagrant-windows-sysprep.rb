@@ -53,7 +53,7 @@ module VagrantPlugins
             @machine.communicate.upload(
               File.join(File.dirname(__FILE__), "vagrant-windows-sysprep", "sysprep.ps1"),
               sysprep_remote_path)
-            sysprep_command = "#{ps} -File #{sysprep_remote_path}"
+            sysprep_command = "#{ps} -File #{sysprep_remote_path} -Username \"#{@machine.config.winrm.username}\" -Password \"#{@machine.config.winrm.password}\""
             begin
               @machine.communicate.sudo(sysprep_command, {elevated: true, interactive: false}) do |type, data|
                 handle_comm(type, data)
