@@ -41,8 +41,14 @@
                     <PlainText>true</PlainText>
                 </Password>
                 <Enabled>true</Enabled>
-                <Username>@@USERNAME@@</Username>
+                <Username>Administrator</Username>
             </AutoLogon>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>@@PASSWORD@@</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+            </UserAccounts>
             <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
                     <Order>1</Order>

@@ -21,6 +21,15 @@ if (!$ComputerName) {
 $unattendPath = "$PSScriptRoot\vagrant-windows-sysprep-unattend.xml"
 $unattendPs1Path = "$PSScriptRoot\vagrant-windows-sysprep-unattend.ps1"
 
+# sysprep renames the user that has the well-known Administrator SID
+# to the Administrator name, when $Username has that SID, we must
+# rename Administrator back to the $Username name.
+# NB this SID always has the format S-1-5-21-<domain>-500.
+# see https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems
+$administratorLocalUser = Get-LocalUser | Where-Object {$_.SID.Value -match '^S-1-5-21-.+-500$'}
+$enableAdministrator = $administratorLocalUser.Enabled
+$renameAdministratorToUsername = $administratorLocalUser.Name -eq $Username
+
 # NB doing an auto-logon after a sysprep has two effects:
 #    1. make Windows 10 1809 not ask for an account creation (regardless of the
 #       value of SkipUserOOBE/SkipMachineOOBE).
@@ -52,12 +61,9 @@ Set-Content `
             -replace '@@COMPUTERNAME@@',$ComputerName `
             -replace '@@USERNAME@@',$Username `
             -replace '@@PASSWORD@@',$Password `
-            -replace '@@UNATTENDPS1PATH@@',$unattendPs1Path `
+            -replace '@@UNATTENDPS1PATH@@',$unattendPs1Path
     )
-Set-Content `
-    -Encoding UTF8 `
-    -Path $unattendPs1Path `
-    -Value @'
+$unattendPs1 = @'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -82,6 +88,16 @@ WARNING WARNING WARNING WARNING WARNING WARNING
 
 "@
 
+if ($enableAdministrator) {
+    Get-LocalUser -Name Administrator | Enable-LocalUser
+} else {
+    Get-LocalUser -Name Administrator | Disable-LocalUser
+}
+
+if ($renameAdministratorToUsername) {
+    Get-LocalUser -Name Administrator | Rename-LocalUser -NewName $Username
+}
+
 Write-Host 'Waiting for WinRM to be running...'
 while ((Get-Service WinRM).Status -ne 'Running') {
     Start-Sleep -Seconds 5
@@ -104,7 +120,14 @@ Remove-ItemProperty `
 
 Write-Host 'Logging off...'
 logoff
-'@
+'@ `
+    -replace '\$enableAdministrator',"$(if ($enableAdministrator) {'$true'} else {'$false'})" `
+    -replace '\$renameAdministratorToUsername',"$(if ($renameAdministratorToUsername) {'$true'} else {'$false'})" `
+    -replace '\$Username',"'$Username'"
+Set-Content `
+    -Encoding UTF8 `
+    -Path $unattendPs1Path `
+    -Value $unattendPs1
 
 Write-Host 'Syspreping...'
 C:/Windows/System32/Sysprep/sysprep.exe `
