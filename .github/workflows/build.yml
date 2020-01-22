@@ -1,0 +1,22 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y bundler libxml2-dev zlib1g-dev
+          bundle
+      - name: Build
+        run: rake
+      - name: Archive
+        uses: actions/upload-artifact@v1
+        with:
+          name: vagrant-windows-sysprep
+          path: pkg/
