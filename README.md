@@ -5,7 +5,7 @@
 
 This is a Vagrant plugin to sysprep Windows.
 
-**NB** This was only tested with Vagrant 2.2.5 and Windows Server 2016/2019 and Windows 10 1809.
+**NB** This was only tested with Vagrant 2.2.7 and Windows Server 2016/2019 and Windows 10 1809.
 
 # Installation
 
@@ -29,7 +29,7 @@ To troubleshoot, set the `VAGRANT_LOG` environment variable to `debug`.
 In this repo there's an example [Vagrantfile](Vagrantfile). Use it to launch
 an example.
 
-First install the [Base Windows 2019 Box](https://github.com/rgl/windows-2016-vagrant).
+First install the [Base Windows 2019 Box](https://github.com/rgl/windows-vagrant).
 
 Then launch the example:
 

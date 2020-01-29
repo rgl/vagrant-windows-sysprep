@@ -4,8 +4,8 @@ rescue LoadError
   raise "The Vagrant Windows Sysprep plugin must be run within Vagrant."
 end
 
-if Vagrant::VERSION < "2.1.2"
-  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 2.1.2+"
+if Vagrant::VERSION < "2.2.7"
+  raise "The Vagrant Windows Sysprep plugin is only compatible with Vagrant 2.2.7+"
 end
 
 module VagrantPlugins
