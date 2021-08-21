@@ -63,10 +63,11 @@ module VagrantPlugins
             end
 
             # wait for the machine to be shutdown.
-            # NB :poweroff is used by the VirtualBox provider.
-            # NB :shutoff  is used by the libvirt provider.
-            # NB :off      is used by the Hyper-V provider.
-            until [:poweroff, :shutoff, :off].include? @machine.state.id
+            # NB :poweroff    is used by the VirtualBox provider.
+            # NB :shutoff     is used by the libvirt provider.
+            # NB :off         is used by the Hyper-V provider.
+            # NB :not_running is used by the VMware Desktop provider.
+            until [:poweroff, :shutoff, :off, :not_running].include? @machine.state.id
               sleep 10
             end
 
